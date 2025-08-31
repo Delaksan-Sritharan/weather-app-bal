@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Simple Weather App</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f5f5f5;
+        padding: 20px;
+        text-align: center;
+      }
+      h1 {
+        color: #333;
+      }
+      table {
+        width: 60%;
+        margin: 20px auto;
+        border-collapse: collapse;
+        background: white;
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      th,
+      td {
+        padding: 12px;
+        border: 1px solid #ddd;
+      }
+      th {
+        background: #4caf50;
+        color: white;
+      }
+      input,
+      button {
+        padding: 10px;
+        margin: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+      }
+      button {
+        background: #4caf50;
+        color: white;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #45a049;
+      }
+      #result {
+        margin-top: 20px;
+        font-size: 18px;
+        color: #444;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🌤️ Simple Weather App</h1>
+
+    <h2>All Weather Data</h2>
+    <table id="weatherTable">
+      <thead>
+        <tr>
+          <th>City</th>
+          <th>Condition</th>
+          <th>Temperature (°C)</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <h2>Search Weather by City</h2>
+    <input type="text" id="cityInput" placeholder="Enter city name" />
+    <button onclick="getWeather()">Get Weather</button>
+
+    <div id="result"></div>
+
+    <script>
+      // Load all weather data
+      async function loadAllWeather() {
+        const response = await fetch("/weather/all");
+        const data = await response.json();
+
+        const tbody = document.querySelector("#weatherTable tbody");
+        tbody.innerHTML = "";
+        data.forEach((item) => {
+          const row = `<tr>
+          <td>${item.city}</td>
+          <td>${item.condition}</td>
+          <td>${item.temperature}</td>
+        </tr>`;
+          tbody.innerHTML += row;
+        });
+      }
+
+      // Get weather for a specific city
+      async function getWeather() {
+        const city = document.getElementById("cityInput").value.trim();
+        if (!city) {
+          document.getElementById("result").innerText = "Please enter a city.";
+          return;
+        }
+
+        const response = await fetch(`/weather/${city}`);
+        if (response.ok) {
+          const data = await response.json();
+          document.getElementById(
+            "result"
+          ).innerText = `Weather in ${data.city}: ${data.condition}, ${data.temperature}°C`;
+        } else {
+          const text = await response.text();
+          document.getElementById("result").innerText = text;
+        }
+      }
+
+      // Initial load
+      loadAllWeather();
+    </script>
+  </body>
+</html>
